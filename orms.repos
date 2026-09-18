@@ -1,0 +1,9 @@
+repositories:
+  src/tum-tb-perception2:
+    type: git
+    url: https://github.com/BRAIR-lab/tum-tb-perception2.git
+    version: jazzy
+  src/tum-tb-perception2-msgs:
+    type: git
+    url: https://github.com/BRAIR-lab/tum-tb-perception2-msgs.git
+    version: jazzy

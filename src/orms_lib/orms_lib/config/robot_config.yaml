@@ -1,0 +1,5 @@
+default_cartesian_stiffness: [2000, 2000, 2000]
+default_rotational_stiffness: [30, 30, 30]
+default_move_time: 2.0
+friction_compensation: true
+drop_position: [0.45, -0.15, 0.2]

@@ -1,0 +1,11 @@
+press_button:
+  approach_offset_z: 0.025
+  force_threshold_z: -2.0
+  retract_height: 0.05
+
+grasp_probe:
+  approach_offset_z: 0.08
+  gripper_preopen_width: 0.02
+  grasp_verify_min_width: 0.004
+  extract_offset_x: -0.03
+  extract_offset_z: 0.03

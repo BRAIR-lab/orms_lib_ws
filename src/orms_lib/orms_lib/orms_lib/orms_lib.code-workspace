@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../franka_description"
+		},
+		{
+			"path": "../../../franka_ros2"
+		},
+		{
+			"path": "../../../taskboard_manipulation"
+		}
+	],
+	"settings": {}
+}

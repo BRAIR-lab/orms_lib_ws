@@ -1,0 +1,83 @@
+/**:
+  chat_parameters:
+    #model: granite4.1:8b
+    model: qwen3:4b-instruct
+    #ip: 192.168.1.133
+    ip: localhost
+    port: 11434
+  ros__parameters:
+    stream:
+      type: sensor_msgs/CompressedImage
+      names: 
+      - /camera/camera/color/image_raw/compressed
+      #- /image_2
+      #- /image
+    task:
+      type: std_msgs/Int16
+      name: /taskCompleted
+    board:
+      type: agent_server_interfaces/srv/SetList
+      name: /set_list
+      tasks:
+      - id: detect_taskboard 
+        name: Detect taskboard
+        description: Detect the taskboard in the camera image and compute the positions of its elements
+      - id: reset_pose
+        name: Reset pose
+        description: Reset the pose of the robot to the home position
+      - id: press_blue_button
+        name: Press blue button
+        description: Press the blue button on the board
+        type: bool
+        sensor_name: BLUE_BUTTON
+        success_value: true
+        selectable: false
+      - id: press_red_button
+        name: Press red button
+        description: Press the red button on the board
+        type: bool
+        sensor_name: RED_BUTTON
+        success_value: true
+        selectable: false
+      - id: wrap_cable
+        name: Wrap cable
+        description: Wrap the cable
+        type: bool
+        sensor_name: FREE_CABLE
+        success_value: false
+        selectable: false
+      - id: open_door
+        name: Open door
+        description: Raise the door open
+        type: bool
+        sensor_name: DOOR_OPEN
+        success_value: true
+        selectable: false
+      - id: slider_move
+        name: Match slider to screen
+        description: Match the slider to the screen
+        type: float
+        sensor_name: FADER
+        success_value: 0.5
+        selectable: true
+      - id: switch_sockets
+        name: Move probe plug
+        description: Move the probe plug into position (switch the hole)
+        type: bool
+        sensor_name: PROBE_PLUGGED
+        success_value: true
+        selectable: false
+      - id: return_probe
+        name: Probe goal
+        description: Move the probe to the original position
+        type: bool
+        sensor_name: PROBE_GOAL
+        success_value: true
+        selectable: false
+      - id: probe_goal_analog
+        name: Probe goal analog
+        description: Use the probe to measure the analog value
+        type: float
+        sensor_name: PROBE_GOAL_ANALOG
+        success_value: 0.74
+        selectable: false

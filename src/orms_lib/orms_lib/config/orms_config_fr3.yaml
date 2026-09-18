@@ -1,0 +1,57 @@
+robot:
+  type: franka_fr3
+  robot_ip: "192.168.1.198"
+  load_gripper: true
+  base_frame: "fr3_link0"
+  ee_frame: "fr3_hand_tcp"
+  default_cartesian_stiffness: [2000.0, 2000.0, 2000.0, 30.0, 30.0, 30.0]
+  default_velocity_scaling: 0.1
+  default_acceleration_scaling: 0.1
+  friction_compensation: true
+  drop_position: [0.45, -0.15, 0.2]
+
+eye_to_hand_transform:
+  translation: [-0.061272, 0.009180, -0.046419]
+  quaternion: [0.007725, 0.707307, -0.007172, -0.706828]
+  parent_frame: "fr3_hand_tcp"
+  child_frame: "camera_link"
+gripper:
+  type: franka_hand
+  default_speed: 0.1
+  default_force: 10.0
+
+perception:
+  type: yolo_pnp
+  use_pointcloud_z: true
+  model_path: "models/best_taskboard.onnx"
+  confidence_threshold: 0.2
+  desired_reference_frame: "fr3_link0"
+
+tasks_package: orms_lib.tasks
+tasks:
+  press_blue_button:
+    file: jsi.press_button
+    params:
+      target_frame: "blue_button_frame"
+  press_red_button:
+    file: jsi.press_button
+    params:
+      target_frame: "red_button_frame"
+  slider_move:
+    file: jsi.slider_move
+  open_door:
+    file: jsi.open_door
+  switch_sockets:
+    file: jsi.switch_sockets
+  wrap_cable:
+    file: jsi.wrap_cable
+  grasp_probe:
+    file: jsi.grasp_probe
+  measure_probe:
+    file: jsi.measure_probe
+  return_probe:
+    file: jsi.return_probe
+  drop_probe:
+    file: jsi.drop_probe
+  reset_pose:
+    file: jsi.reset_pose

@@ -1,0 +1,27 @@
+<launch>
+
+    <node name="manager_node" pkg="agent_server" exec="manager_node" output="screen"/>
+
+    <!-- RosBridge WebSocket server -->
+    <node pkg="rosbridge_server" exec="rosbridge_websocket" name="rosbridge_websocket" output="screen">
+        <param name="port" value="9090" />
+    </node>
+
+    <node pkg="rosapi" exec="rosapi_node" name="rosapi_websocket" output="screen" />
+
+    <!-- Micro-ROS Agent -->
+    <node pkg="micro_ros_agent"
+      exec="micro_ros_agent"
+      name="micro_ros_agent"
+      output="screen"
+      args="udp4 --port 8367"/>
+
+    <node name="task_handler" pkg="agent_server" exec="task_handler" output="screen">
+        <param name="config_file" value="$(find-pkg-share agent_server)/config/params.yaml" />
+    </node>
+
+    <node name="config_node" pkg="agent_server" exec="config_node" output="screen">
+        <param name="config_file" value="$(find-pkg-share agent_server)/config/params.yaml" />
+    </node>
+
+</launch>

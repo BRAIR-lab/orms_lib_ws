@@ -1,0 +1,15 @@
+# ---- Goal ----
+string task_name                    # Task identifier (for logging/routing)
+string[] param_keys                 # Optional typed parameters
+string[] param_values               # e.g., ["target_frame", "red_button_frame"]
+
+---
+# ---- Result ----
+bool success
+string message
+float64 execution_time_sec
+
+---
+# ---- Feedback ----
+string current_phase                # e.g., "approaching", "grasping", "retracting"
+float32 progress                    # 0.0 -> 1.0

@@ -1,0 +1,36 @@
+# ROS 2 workspace directories
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+*.log
+
+# Dependencies managed by vcstool (via orms.repos)
+src/tum-tb-perception2/
+src/tum-tb-perception2-msgs/
+
+# micro-ROS agent workspace (created by install.md instructions)
+microros_agent_ws/
+
+# UI Frontend (Managed as a separate repository)
+orms_ui/
+
+# IDE / OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store

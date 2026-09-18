@@ -1,0 +1,5 @@
+string[] data
+float32[] values
+---
+bool success
+string message

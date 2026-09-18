@@ -1,0 +1,7 @@
+string question
+---
+bool success
+string full_answer
+---
+string partial_answer
+bool split
