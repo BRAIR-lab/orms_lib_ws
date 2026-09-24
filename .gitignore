@@ -20,9 +20,7 @@ pip-delete-this-directory.txt
 # Dependencies managed by vcstool (via orms.repos)
 src/tum-tb-perception2/
 src/tum-tb-perception2-msgs/
-
-# micro-ROS agent workspace (created by install.md instructions)
-microros_agent_ws/
+src/micro-ROS-agent/
 
 # UI Frontend (Managed as a separate repository)
 orms_ui/
