@@ -47,7 +47,14 @@ cd ..
 
 *(Note: `rosbridge_suite` is also required. Install it via `sudo apt install -y ros-$ROS_DISTRO-rosbridge-suite` if you haven't already).*
 
-## 4. Build the ROS 2 Workspace
+## 4. Install ROS 2 Dependencies
+Install all ROS 2 system dependencies declared by packages in the workspace (e.g., `sensor_msgs_py`, `cv_bridge`, `tf2_ros`, etc.):
+
+```bash
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+## 5. Build the ROS 2 Workspace
 We use a Python virtual environment to manage dependencies safely.
 
 ```bash
@@ -59,7 +66,7 @@ source venv/bin/activate
 python3 -m colcon build
 ```
 
-## 5. Setup the Web UI
+## 6. Setup the Web UI
 The frontend is a standalone React application. Clone it into the workspace and install its dependencies:
 
 ```bash
@@ -70,7 +77,7 @@ npm install
 cd ..
 ```
 
-## 6. Setup Local LLM (Ollama)
+## 7. Setup Local LLM (Ollama)
 The `agent_server` relies on Ollama for local, offline LLM inference.
 
 ```bash
@@ -83,7 +90,7 @@ ollama pull qwen3:4b-instruct
 > **Note:** After the model download completes, type `/bye` to exit the chat prompt.
 > If you wish to use a different model (e.g., `granite4.1:8b`), download it via Ollama and update the model name in `src/agent_server/config/params.yaml`.
 
-## 7. Running the System
+## 8. Running the System
 Once everything is installed and built, you can start the entire stack from the main workspace folder:
 
 ```bash
