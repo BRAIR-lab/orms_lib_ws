@@ -7,7 +7,7 @@ Follow these steps to set up the `orms_lib_ws` workspace, including the ROS 2 ba
 - **Python 3.12** with `venv`
 - **Node.js & npm** (for the UI)
 - **Ollama** (for local LLM inference)
-- **vcstool** (`sudo apt install python3-vcstool`)
+- **vcstool** (`sudo apt install ros-dev-tools`)
 - **franka_ros2**: It is assumed that the Franka ROS 2 packages are already set up in a separate workspace (e.g., `~/franka_ros2_ws`) according to the [official documentation](https://github.com/frankarobotics/franka_ros2).
 
 ## 1. Clone the Workspace
