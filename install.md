@@ -78,7 +78,7 @@ The `agent_server` relies on Ollama for local, offline LLM inference.
 curl -fsSL https://ollama.com/install.sh | sh
 
 # Download and run the default model
-ollama run qwen3:4b-instruct
+ollama pull qwen3:4b-instruct
 ```
 > **Note:** After the model download completes, type `/bye` to exit the chat prompt.
 > If you wish to use a different model (e.g., `granite4.1:8b`), download it via Ollama and update the model name in `src/agent_server/config/params.yaml`.
