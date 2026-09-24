@@ -14,6 +14,16 @@ def launch_realsense(context, *args, **kwargs):
     percept = context.launch_configurations.get('perception_type', 'yolo_pnp')
     need_depth = 'true' if (use_pc_z == 'true' or percept != 'yolo_pnp') else 'false'
 
+    # Camera resolution per pipeline:
+    #   YOLO PnP was developed/calibrated at 1280x720@30 (DesignLearnRG_euROBIN)
+    #   FRCNN pipelines were developed at 640x480@15 (original tum-tb-perception)
+    if percept == 'yolo_pnp':
+        color_profile = '1280x720x30'
+        depth_profile = '1280x720x30'
+    else:
+        color_profile = '640x480x15'
+        depth_profile = '640x480x15'
+
     keys_to_remove = ['orms_config_file', 'perception_type', 'use_pointcloud_z', 'sim_mode']
     for key in keys_to_remove:
         if key in context.launch_configurations:
@@ -29,6 +39,8 @@ def launch_realsense(context, *args, **kwargs):
                 ])
             ]),
             launch_arguments={
+                'rgb_camera.color_profile': color_profile,
+                'depth_module.depth_profile': depth_profile,
                 'pointcloud.enable': need_depth,
                 'align_depth.enable': need_depth,
             }.items()
@@ -158,6 +170,23 @@ def generate_launch_description():
         condition=IfCondition(PythonExpression(["'", perception_type, "' == 'frcnn_sam'"]))
     )
 
+    # CNN object detector — required by both FRCNN pipelines (publishes
+    # BoundingBoxList on /tum_tb_perception2/detection_result which the
+    # pose estimator nodes subscribe to).
+    frcnn_detector_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('tum_tb_perception2'),
+                'launch',
+                'object_detector.launch.py'
+            ])
+        ]),
+        condition=IfCondition(PythonExpression([
+            "'", perception_type, "' == 'frcnn_pointcloud' or '",
+            perception_type, "' == 'frcnn_sam'"
+        ]))
+    )
+
     # ----------------------------------------------------------------
     # 4. ORMS Task Server — reads config_file at runtime
     # ----------------------------------------------------------------
@@ -180,6 +209,7 @@ def generate_launch_description():
         realsense_camera,
         eye_to_hand_transform,
         yolo_pnp_node,
+        frcnn_detector_node,
         frcnn_pc_node,
         frcnn_sam_node,
         orms_action_server,
