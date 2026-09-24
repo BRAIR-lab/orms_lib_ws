@@ -24,17 +24,17 @@ Fetch the external repositories (perception pipelines) into the `src` directory 
 ```bash
 sudo apt update
 rosdep update
-vcs import src < orms.repos
+vcs import . < orms.repos
 ```
 
-## 4. Install ROS 2 Dependencies
+## 3. Install ROS 2 Dependencies
 Install all ROS 2 system dependencies declared by packages in the workspace:
 
 ```bash
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-## 5. Build the ROS 2 Workspace
+## 4. Build the ROS 2 Workspace
 We use a Python virtual environment to manage dependencies safely.
 
 ```bash
@@ -46,7 +46,7 @@ source venv/bin/activate
 python3 -m colcon build
 ```
 
-## 6. Setup the Web UI
+## 5. Setup the Web UI
 The frontend is a standalone React application. Clone it into the workspace and install its dependencies:
 
 ```bash
@@ -57,7 +57,7 @@ npm install
 cd ..
 ```
 
-## 7. Setup Local LLM (Ollama)
+## 6. Setup Local LLM (Ollama)
 The `agent_server` relies on Ollama for local, offline LLM inference.
 
 ```bash
@@ -69,7 +69,7 @@ ollama pull qwen3:4b-instruct
 ```
 > If you wish to use a different model (e.g., `granite4.1:8b`), download it via Ollama and update the model name in `src/agent_server/config/params.yaml`.
 
-## 8. Running the System
+## 7. Running the System
 Once everything is installed and built, you can start the entire stack from the main workspace folder:
 
 ```bash
