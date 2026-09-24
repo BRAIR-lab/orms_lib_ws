@@ -7,3 +7,7 @@ repositories:
     type: git
     url: https://github.com/BRAIR-lab/tum-tb-perception2-msgs.git
     version: main
+  src/micro-ROS-Agent:
+    type: git
+    url: https://github.com/micro-ROS/micro-ROS-Agent.git
+    version: jazzy

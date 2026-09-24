@@ -22,33 +22,13 @@ cd orms_lib_ws
 Fetch the external repositories (perception pipelines) into the `src` directory using `vcstool`:
 
 ```bash
+sudo apt update
+rosdep update
 vcs import src < orms.repos
 ```
 
-## 3. Install micro-ROS Agent
-The system requires `micro-ROS` to communicate with the task board hardware.
-
-```bash
-# Update package lists and rosdep
-sudo apt update
-rosdep update
-
-# Install micro-ROS messages
-sudo apt install -y ros-$ROS_DISTRO-micro-ros-msgs
-
-# Create and build the micro-ROS agent workspace
-mkdir -p microros_agent_ws/src
-cd microros_agent_ws
-git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro-ROS-Agent.git src/micro-ROS-Agent
-source /opt/ros/$ROS_DISTRO/setup.bash
-colcon build
-cd ..
-```
-
-*(Note: `rosbridge_suite` is also required. Install it via `sudo apt install -y ros-$ROS_DISTRO-rosbridge-suite` if you haven't already).*
-
 ## 4. Install ROS 2 Dependencies
-Install all ROS 2 system dependencies declared by packages in the workspace (e.g., `sensor_msgs_py`, `cv_bridge`, `tf2_ros`, etc.):
+Install all ROS 2 system dependencies declared by packages in the workspace:
 
 ```bash
 rosdep install --from-paths src --ignore-src -r -y
@@ -87,7 +67,6 @@ curl -fsSL https://ollama.com/install.sh | sh
 # Download and run the default model
 ollama pull qwen3:4b-instruct
 ```
-> **Note:** After the model download completes, type `/bye` to exit the chat prompt.
 > If you wish to use a different model (e.g., `granite4.1:8b`), download it via Ollama and update the model name in `src/agent_server/config/params.yaml`.
 
 ## 8. Running the System
