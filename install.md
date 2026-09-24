@@ -75,7 +75,7 @@ The `agent_server` relies on Ollama for local, offline LLM inference.
 
 ```bash
 # Install Ollama (if not already installed)
-sudo apt install ollama -y
+curl -fsSL https://ollama.com/install.sh | sh
 
 # Download and run the default model
 ollama run qwen3:4b-instruct
