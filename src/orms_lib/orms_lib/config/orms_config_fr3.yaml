@@ -10,6 +10,9 @@ robot:
   friction_compensation: true
   drop_position: [0.45, -0.15, 0.2]
 
+camera:
+  type: d435  # Options: d435, d405
+
 eye_to_hand_transform:
   translation: [-0.061272, 0.009180, -0.046419]
   quaternion: [0.007725, 0.707307, -0.007172, -0.706828]

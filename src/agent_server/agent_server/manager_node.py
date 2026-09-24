@@ -134,10 +134,18 @@ class ManagerNode(Node):
 		use_pointcloud_z = perception_cfg.get("use_pointcloud_z", True)
 		use_pointcloud_z_str = "true" if use_pointcloud_z else "false"
 
+		camera_cfg = config.get("camera", {})
+		if isinstance(camera_cfg, dict):
+			camera_type = str(camera_cfg.get("type", camera_cfg.get("model", "d435"))).lower().strip()
+		elif isinstance(camera_cfg, str):
+			camera_type = camera_cfg.lower().strip()
+		else:
+			camera_type = "d435"
+
 		self.get_logger().info(
 			f"Starting {robot} with params from config ({cfg_filename}): "
 			f"robot_ip={robot_ip}, load_gripper={load_gripper_str}, "
-			f"perception_type={perception_type}, use_pointcloud_z={use_pointcloud_z_str}"
+			f"perception_type={perception_type}, use_pointcloud_z={use_pointcloud_z_str}, camera_type={camera_type}"
 		)
 
 		# Define launch sequences as lists of dictionaries
@@ -153,7 +161,7 @@ class ManagerNode(Node):
 					"workspace": "orms_lib_ws",
 					"package": "orms_lib",
 					"file": "system_bringup.launch.py",
-					"args": f"orms_config_file:={cfg_filename} perception_type:={perception_type} use_pointcloud_z:={use_pointcloud_z_str}"
+					"args": f"orms_config_file:={cfg_filename} perception_type:={perception_type} use_pointcloud_z:={use_pointcloud_z_str} camera_type:={camera_type}"
 				}
 			]
 		elif robot == "robot_b":

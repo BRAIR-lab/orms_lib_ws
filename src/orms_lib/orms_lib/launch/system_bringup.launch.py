@@ -10,24 +10,63 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
 def launch_realsense(context, *args, **kwargs):
+    config_file = context.launch_configurations.get('orms_config_file', 'orms_config_fr3.yaml')
+    camera_type = context.launch_configurations.get('camera_type', '').lower().strip()
     use_pc_z = context.launch_configurations.get('use_pointcloud_z', 'true')
     percept = context.launch_configurations.get('perception_type', 'yolo_pnp')
     need_depth = 'true' if (use_pc_z == 'true' or percept != 'yolo_pnp') else 'false'
+
+    # If camera_type is not explicitly passed via launch argument, read it from YAML config
+    if not camera_type:
+        if not os.path.isabs(config_file):
+            orms_lib_share = get_package_share_directory('orms_lib')
+            config_path = os.path.join(orms_lib_share, 'config', config_file)
+        else:
+            config_path = config_file
+
+        try:
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    cfg = yaml.safe_load(f) or {}
+                    cam_cfg = cfg.get('camera', {})
+                    if isinstance(cam_cfg, dict):
+                        camera_type = str(cam_cfg.get('type', cam_cfg.get('model', 'd435'))).lower().strip()
+                    elif isinstance(cam_cfg, str):
+                        camera_type = cam_cfg.lower().strip()
+        except Exception as e:
+            print(f"Failed to read camera config from {config_path}: {e}")
+
+    if not camera_type:
+        camera_type = 'd435'
 
     # Camera resolution per pipeline:
     #   YOLO PnP was developed/calibrated at 1280x720@30 (DesignLearnRG_euROBIN)
     #   FRCNN pipelines were developed at 640x480@15 (original tum-tb-perception)
     if percept == 'yolo_pnp':
-        color_profile = '1280x720x30'
-        depth_profile = '1280x720x30'
+        profile = '1280x720x30'
     else:
-        color_profile = '640x480x15'
-        depth_profile = '640x480x15'
+        profile = '640x480x15'
 
-    keys_to_remove = ['orms_config_file', 'perception_type', 'use_pointcloud_z', 'sim_mode']
+    keys_to_remove = ['orms_config_file', 'perception_type', 'use_pointcloud_z', 'sim_mode', 'camera_type']
     for key in keys_to_remove:
         if key in context.launch_configurations:
             del context.launch_configurations[key]
+
+    launch_args = {
+        'depth_module.depth_profile': profile,
+        'pointcloud.enable': need_depth,
+        'align_depth.enable': need_depth,
+    }
+
+    if camera_type == 'd405':
+        # D405 derives RGB directly from the stereo depth sensor (no separate rgb_camera module).
+        # We set depth_module.color_profile as well as rgb_camera.color_profile for compatibility
+        # across different realsense2_camera wrapper versions.
+        launch_args['depth_module.color_profile'] = profile
+        launch_args['rgb_camera.color_profile'] = profile
+    else:
+        # Default D435 / D435i with dedicated RGB sensor
+        launch_args['rgb_camera.color_profile'] = profile
 
     return [
         IncludeLaunchDescription(
@@ -38,12 +77,7 @@ def launch_realsense(context, *args, **kwargs):
                     'rs_launch.py'
                 ])
             ]),
-            launch_arguments={
-                'rgb_camera.color_profile': color_profile,
-                'depth_module.depth_profile': depth_profile,
-                'pointcloud.enable': need_depth,
-                'align_depth.enable': need_depth,
-            }.items()
+            launch_arguments=launch_args.items()
         )
     ]
 
@@ -110,6 +144,11 @@ def generate_launch_description():
         'sim_mode',
         default_value='False',
         description='Run in simulation mode (bypasses force guards)'
+    )
+    camera_type_arg = DeclareLaunchArgument(
+        'camera_type',
+        default_value='',
+        description='Camera model: d435 | d405 (if empty, read from orms_config_file)'
     )
 
     orms_config_file = LaunchConfiguration('orms_config_file')
@@ -206,6 +245,7 @@ def generate_launch_description():
         perception_type_arg,
         use_pointcloud_z_arg,
         sim_mode_arg,
+        camera_type_arg,
         realsense_camera,
         eye_to_hand_transform,
         yolo_pnp_node,
