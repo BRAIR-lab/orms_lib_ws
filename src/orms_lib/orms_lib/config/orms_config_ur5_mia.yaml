@@ -1,0 +1,62 @@
+robot:
+  type: ur5e
+  base_frame: "world"
+  ee_frame: "right_dorsum_link"
+  default_velocity_scaling: 0.1
+  default_acceleration_scaling: 0.1
+  # Cartesian controller convergence thresholds (used by UR5eRobot)
+  position_tolerance: 0.005      # meters
+  orientation_tolerance: 0.02    # quaternion distance
+
+camera:
+  type: d435  # Options: d435, d405
+
+eye_to_hand_transform:
+  translation: [0.357840387561301, 0.3286872801471561, 0.2271340536772075]
+  quaternion: [0.10606126442093068, 0.26850719615046803, -0.36117037974291255, 0.8866853165589287]
+  parent_frame: "right_base_link"
+  child_frame: "camera_link"
+
+gripper:
+  type: mia_hand
+  # Finger joint limits (radians)
+  joint_open: 0.0
+  joint_closed: 1.0
+  # Effective gripper aperture when fully open (meters)
+  max_width: 0.10
+
+perception:
+  type: yolo_pnp
+  use_pointcloud_z: true
+  model_path: "models/best_taskboard.onnx"
+  confidence_threshold: 0.2
+  desired_reference_frame: "camera_link"
+
+tasks_package: orms_lib.tasks
+tasks:
+  press_blue_button:
+    file: aha.press_button
+    params:
+      target_frame: "blue_button_frame"
+  press_red_button:
+    file: aha.press_button
+    params:
+      target_frame: "red_button_frame"
+  slider_move:
+    file: aha.slider_move
+  open_door:
+    file: aha.open_door
+  switch_sockets:
+    file: aha.switch_sockets
+  wrap_cable:
+    file: aha.wrap_cable
+  grasp_probe:
+    file: aha.grasp_probe
+  measure_probe:
+    file: aha.measure_probe
+  return_probe:
+    file: aha.return_probe
+  drop_probe:
+    file: aha.drop_probe
+  reset_pose:
+    file: aha.reset_pose

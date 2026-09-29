@@ -19,5 +19,8 @@ def create_gripper(node: rclpy.node.Node, gripper_type: str) -> GripperBase:
     elif gripper_type == "robotiq_2f85":
         from orms_lib.interfaces.robotiq_gripper import RobotiqGripper
         return RobotiqGripper(node)
+    elif gripper_type == "mia_hand":
+        from orms_lib.interfaces.mia_hand_gripper import MiaHandGripper
+        return MiaHandGripper(node)
     else:
         raise ValueError(f"Unknown gripper_type in config: {gripper_type}")

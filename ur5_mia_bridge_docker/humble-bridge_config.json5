@@ -1,0 +1,60 @@
+{
+  plugins: {
+    ros2dds: {
+      //  Zenoh ↔ ROS 2 DDS bridge for UR5 + Mia Hand (Remote Machine)
+      //  ROS Distro: Humble
+      //
+      //  This file runs on the ROBOT hardware machine where:
+      //    - ur_robot_driver & ros2_control are running
+      //    - right_cartesian_controller (CartesianMotionController)
+      //    - right_gripper_controller (PidController)
+      //    - right_state_broadcaster & joint_state_broadcaster
+      //    - robot_state_publisher (tf / tf_static)
+      //
+      //  On THIS machine:
+      //    - "publishers"  = Local ROS 2 publishers whose data should
+      //                      be routed OVER Zenoh to the Jazzy machine.
+      //    - "subscribers" = Local ROS 2 subscribers that should RECEIVE
+      //                      commands coming from the Jazzy machine.
+      // ──────────────────────────────────────────────────────────────
+
+      allow: {
+
+        // ── Local publishers to route TO the Jazzy/ORMS machine ──
+        publishers: [
+
+          // ─── Joint state feedback ───
+          "/joint_states",                                                    // sensor_msgs/JointState — global broadcaster
+          "/right_state_broadcaster/joint_states",                            // sensor_msgs/JointState — right arm + Mia fingers
+
+          // ─── TF transforms ───
+          "/tf",                                                              // tf2_msgs/TFMessage — dynamic transforms
+          "/tf_static",                                                       // tf2_msgs/TFMessage — static transforms
+
+          // ─── right_cartesian_controller feedback ───
+          "/right_cartesian_controller/current_pose",                         // geometry_msgs/PoseStamped — current EE (right_dorsum_link) pose
+          "/right_cartesian_controller/state",                                // cartesian_control_msgs/CartesianTrajectoryControllerState
+
+          // ─── right_gripper_controller feedback ───
+          "/right_gripper_controller/controller_state",                       // control_msgs/MultiDOFStateStamped — PID state
+        ],
+
+        // ── Local subscribers that RECEIVE commands FROM Jazzy/ORMS ─
+        subscribers: [
+
+          // ─── Cartesian motion target ───
+          "/right_cartesian_controller/target_frame",                         // geometry_msgs/PoseStamped — Cartesian goal
+
+          // ─── Mia hand PID position reference ───
+          "/right_gripper_controller/reference",                              // std_msgs/Float64MultiArray — [index_fle, thumb_fle, mrl_fle]
+        ],
+
+        // ── Services (uncomment as needed) ──────────────────────
+        // service_servers: [
+        //   "/controller_manager/list_controllers",
+        //   "/controller_manager/switch_controller",
+        // ],
+      }
+    }
+  }
+}

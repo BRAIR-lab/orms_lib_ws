@@ -1,0 +1,15 @@
+services:
+
+  jazzy_zenoh_bridge:
+    image: eclipse/zenoh-bridge-ros2dds:latest
+    volumes:
+      - ./jazzy-bridge-config.json5:/tmp/bridge-config.json5:ro
+    environment:
+      - ROS_DOMAIN_ID=0
+      - ROS_DISTRO=jazzy
+    networks: [bridgenet]
+    command: ["-e", "tcp/10.61.1.237:7447", "-c", "/tmp/bridge-config.json5"]
+
+networks:
+  bridgenet:
+    driver: bridge

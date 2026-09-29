@@ -53,8 +53,10 @@ class ManagerNode(Node):
 		if not config_filename:
 			if robot in ["franka", "fr3"]:
 				config_filename = "orms_config_fr3.yaml"
-			elif robot in ["ur5", "ur5e", "robot_b"]:
-				config_filename = "orms_config_ur5e.yaml"
+			elif robot in ["ur5", "ur5e"]:
+				config_filename = "orms_config_ur5_mia.yaml"
+			elif robot in ["robot_b"]:
+				config_filename = "orms_config_ur5_mia.yaml"
 			else:
 				config_filename = f"orms_config_{robot}.yaml"
 
@@ -100,6 +102,9 @@ class ManagerNode(Node):
 
 		if robot in ["franka", "fr3"]:
 			response.success = self.start_robot("franka", config_file)
+		elif robot in ["ur5", "ur5e"]:
+			self.get_logger().info("UR5 selected")
+			response.success = self.start_robot("ur5", config_file)
 		elif robot == "robot_b":
 			self.get_logger().info("Robot B selected")
 			response.success = self.start_robot("robot_b", config_file)
@@ -164,6 +169,20 @@ class ManagerNode(Node):
 					"args": f"orms_config_file:={cfg_filename} perception_type:={perception_type} use_pointcloud_z:={use_pointcloud_z_str} camera_type:={camera_type}"
 				}
 			]
+		elif robot == "ur5":
+			# Step 1: Bring up the Zenoh bridge Docker container
+			if not self._start_bridge_docker():
+				return False
+
+			# Step 2: Launch system_bringup (camera, perception, task server)
+			launch_steps = [
+				{
+					"workspace": "orms_lib_ws",
+					"package": "orms_lib",
+					"file": "system_bringup.launch.py",
+					"args": f"orms_config_file:={cfg_filename} perception_type:={perception_type} use_pointcloud_z:={use_pointcloud_z_str} camera_type:={camera_type}"
+				}
+			]
 		elif robot == "robot_b":
 			launch_steps = [
 				{
@@ -209,8 +228,63 @@ class ManagerNode(Node):
 		self.current_robot = robot
 		return True
 
+	def _start_bridge_docker(self):
+		"""Bring up the Zenoh bridge Docker container for UR5 + MIA Hand."""
+		docker_dir = os.path.join(self.basedir, "orms_lib_ws", "ur5_mia_bridge_docker")
+		compose_file = os.path.join(docker_dir, "docker-compose.yml")
+
+		if not os.path.exists(compose_file):
+			self.get_logger().error(f"Docker compose file not found: {compose_file}")
+			return False
+
+		try:
+			self.get_logger().info(f"Bringing up Zenoh bridge Docker from {docker_dir}")
+			process = subprocess.Popen(
+				["docker", "compose", "-f", compose_file, "up", "-d"],
+				cwd=docker_dir,
+				start_new_session=True
+			)
+			process.wait(timeout=30)
+			if process.returncode != 0:
+				self.get_logger().error(f"docker compose up failed with return code {process.returncode}")
+				return False
+			self.get_logger().info("Zenoh bridge Docker container started successfully")
+			time.sleep(3)  # Allow bridge to establish connection
+			return True
+		except subprocess.TimeoutExpired:
+			self.get_logger().error("docker compose up timed out")
+			return False
+		except Exception as e:
+			self.get_logger().error(f"Failed to start Zenoh bridge Docker: {e}")
+			return False
+
+	def _stop_bridge_docker(self):
+		"""Tear down the Zenoh bridge Docker container."""
+		docker_dir = os.path.join(self.basedir, "orms_lib_ws", "ur5_mia_bridge_docker")
+		compose_file = os.path.join(docker_dir, "docker-compose.yml")
+
+		if not os.path.exists(compose_file):
+			return
+
+		try:
+			self.get_logger().info("Stopping Zenoh bridge Docker container")
+			result = subprocess.run(
+				["docker", "compose", "-f", compose_file, "down"],
+				cwd=docker_dir,
+				timeout=15,
+				capture_output=True, text=True
+			)
+			if result.returncode == 0:
+				self.get_logger().info("Zenoh bridge Docker container stopped")
+			else:
+				self.get_logger().warning(f"docker compose down returned {result.returncode}: {result.stderr}")
+		except Exception as e:
+			self.get_logger().error(f"Error stopping Zenoh bridge Docker: {e}")
+
 	def stop_current_robot(self):
 		if not self.current_processes:
+			# Still stop Docker bridge if it might be running
+			self._stop_bridge_docker()
 			return
 			
 		self.get_logger().info(f"Stopping {self.current_robot} ({len(self.current_processes)} processes)")
@@ -226,6 +300,10 @@ class ManagerNode(Node):
 				os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
 			except Exception as e:
 				self.get_logger().error(f"Error stopping process {proc.pid}: {e}")
+
+		# Stop the Zenoh bridge Docker if this was a UR5
+		if self.current_robot == "ur5":
+			self._stop_bridge_docker()
 
 		self.current_processes = []
 		self.current_robot = None

@@ -1,0 +1,57 @@
+{
+  plugins: {
+    ros2dds: {
+      //  Zenoh ↔ ROS 2 DDS bridge for UR5 + Mia Hand (right arm)
+      //
+      //  Remote machine (UR5 side):  ur_robot_driver, ros2_control
+      //      with controllers from bimanual_hand_controllers.yaml
+      //  Local machine (ORMS side):  task_server_node, perception,
+      //      agent_server.
+      //
+      //  Controllers used (right side only):
+      //    - right_cartesian_controller  (CartesianMotionController)
+      //    - right_hand_controller       (JointGroupPositionController)
+      //    - right_state_broadcaster     (JointStateBroadcaster, local topics)
+      //    - joint_state_broadcaster     (JointStateBroadcaster, global)
+      //
+      //  "subscribers" = topics we READ from the remote UR5/Mia
+      //  "publishers"  = topics we SEND to the remote UR5/Mia
+      // ──────────────────────────────────────────────────────────────
+
+      allow: {
+
+        // ── Topics ORMS READS (from remote UR5/Mia) ─────────────
+        subscribers: [
+
+          // ─── Joint state feedback ───
+          "/joint_states",                                                    // sensor_msgs/JointState — global broadcaster (all joints)
+          "/right_state_broadcaster/joint_states",                            // sensor_msgs/JointState — right arm + Mia fingers (use_local_topics: true)
+
+          // ─── TF (robot kinematic chain, needed for get_ee_pose) ───
+          "/tf",                                                              // tf2_msgs/TFMessage — dynamic transforms
+          "/tf_static",                                                       // tf2_msgs/TFMessage — static transforms (URDF frames)
+
+          // ─── right_cartesian_controller feedback (publish_state_feedback: true) ───
+          "/right_cartesian_controller/current_pose",                         // geometry_msgs/PoseStamped — current EE (right_dorsum_link) pose
+          "/right_cartesian_controller/state",                                // cartesian_control_msgs/CartesianTrajectoryControllerState — full state
+        ],
+
+        // ── Topics ORMS SENDS (to remote UR5/Mia) ───────────────
+        publishers: [
+
+          // ─── right_cartesian_controller — Cartesian pose target ───
+          "/right_cartesian_controller/target_frame",                         // geometry_msgs/PoseStamped — Cartesian goal (move_cartesian)
+
+          // ─── right_hand_controller — position commands ───
+          "/right_hand_controller/commands",                                   // std_msgs/Float64MultiArray — [thumb_fle, index_fle, mrl_fle] positions
+        ],
+
+        // ── Services (uncomment as needed) ──────────────────────
+        // service_servers: [
+        //   "/controller_manager/list_controllers",
+        //   "/controller_manager/switch_controller",
+        // ],
+      }
+    }
+  }
+}

@@ -67,6 +67,9 @@
         sensor_name: PROBE_PLUGGED
         success_value: true
         selectable: false
+      - id: grasp_probe
+        name: Grasp probe
+        description: Grasp the probe from the board
       - id: return_probe
         name: Probe goal
         description: Move the probe to the original position
