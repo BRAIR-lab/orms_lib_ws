@@ -38,3 +38,7 @@ To launch the complete euROBIN software stack (backend, agent server, and UI), r
 ```
 
 Navigate to `http://localhost:3000` (or the port indicated in the terminal) in your browser to access the operator dashboard.
+
+## UR5 + Mia Hand Pipeline
+
+To use this experimental pipeline (or see the example of adding a robot through docker bridge interface) checkout the `feature/ur5-mia-hand/` branch.
